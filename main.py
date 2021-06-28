@@ -117,7 +117,7 @@ class SeleniumScraper:
         file.close()
 
     def close_browser(self):
-        """ Прекращаем работу браузера """
+        """ Прекращаем работу браузера / Переделать под контекстный менеджер """
 
         self.browser.quit()
 

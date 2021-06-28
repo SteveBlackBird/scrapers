@@ -58,11 +58,12 @@ class SeleniumScraper:
 
         self.browser.get(url)
         sleep(4)
-        self.load_more()
+        self.load_more_items()
         self.get_items_data()
         self.write_to_file()
+        self.close_browser()
 
-    def load_more(self):
+    def load_more_items(self):
         """ Прогружаем все товарные позиции на страницу """
 
         print('Load items on page...')

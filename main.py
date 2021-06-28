@@ -5,33 +5,47 @@ from time import sleep
 
 url = 'https://xxx.com/category/80/svet/'
 file_import = 'svet.txt'
+profile_refs = {'profile.default_content_setting_values': {'cookies': 2,
+                                                           'images': 2,
+                                                           'plugins': 2,
+                                                           'popups': 2,
+                                                           'geolocation': 2,
+                                                           'notifications': 2,
+                                                           'auto_select_certificate': 2,
+                                                           'fullscreen': 2,
+                                                           'mouselock': 2,
+                                                           'mixed_script': 2,
+                                                           'media_stream': 2,
+                                                           'media_stream_mic': 2,
+                                                           'media_stream_camera': 2,
+                                                           'protocol_handlers': 2,
+                                                           'ppapi_broker': 2,
+                                                           'automatic_downloads': 2,
+                                                           'midi_sysex': 2,
+                                                           'push_messaging': 2,
+                                                           'ssl_cert_decisions': 2,
+                                                           'metro_switch_to_desktop': 2,
+                                                           'protected_media_identifier': 2,
+                                                           'app_banner': 2,
+                                                           'site_engagement': 2,
+                                                           'durable_storage': 2}}
 
 
 class SeleniumScraper:
+    """ Скрапер динамически подгружаемого контента """
+
     def __init__(self):
-        # Initialize browser.
+        """ Инициализируем браузер """
+
         opts = Options()
         opts.headless = False
-        prefs = {'profile.default_content_setting_values': {'cookies': 2, 'images': 2,
-                                                            'plugins': 2, 'popups': 2, 'geolocation': 2,
-                                                            'notifications': 2, 'auto_select_certificate': 2,
-                                                            'fullscreen': 2,
-                                                            'mouselock': 2, 'mixed_script': 2, 'media_stream': 2,
-                                                            'media_stream_mic': 2, 'media_stream_camera': 2,
-                                                            'protocol_handlers': 2,
-                                                            'ppapi_broker': 2, 'automatic_downloads': 2,
-                                                            'midi_sysex': 2,
-                                                            'push_messaging': 2, 'ssl_cert_decisions': 2,
-                                                            'metro_switch_to_desktop': 2,
-                                                            'protected_media_identifier': 2, 'app_banner': 2,
-                                                            'site_engagement': 2,
-                                                            'durable_storage': 2}}
-        opts.add_experimental_option('prefs', prefs)
+        opts.add_experimental_option('profile_refs', profile_refs)
         opts.add_argument("start-maximized")
         opts.add_argument("disable-infobars")
         opts.add_argument("--disable-extensions")
 
         self.browser = Chrome('/Users/xxx/Desktop/Work/scraper/xxx/chromedriver', options=opts)
+
         self.browser.get(url)
         sleep(4)
         self.load_more()

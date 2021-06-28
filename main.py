@@ -53,12 +53,14 @@ class SeleniumScraper:
         self.opts.add_experimental_option('profile_refs', profile_refs)
         self.opts.add_argument(["start-maximized", "disable-infobars", "--disable-extensions"])
 
-    def initialize_browser(self):
+    def start_scraping(self):
 
         self.browser.get(url)
         sleep(4)
         self.load_more()
-        self.get_items()
+        self.get_links_dict()
+        self.get_items_data()
+        self.write_to_file()
 
     def load_more(self):
         print('Load items on page...')
@@ -74,12 +76,17 @@ class SeleniumScraper:
                 print('ENIE')
                 raise error
 
-    def get_items(self):
-        # Get links_dict from main(!loaded) items page.
+    def get_links_dict(self):
+        """ Получаем список ссылок товаров на полностью прогруженной странице """
+
         links_dict = [e.get_attribute('href') for e in self.browser.find_elements_by_xpath(XPATH_GET_LINKS_DICT)]
-        print('Get items')
-        print(len(links_dict))
-        # Go to item and take an info.
+
+        return links_dict
+
+    def get_items_data(self):
+        """ Проходимся по ссылкам, забираем необходимые данные """
+
+        links_dict = self.get_links_dict()
         items = []
         for href in links_dict:
             try:
@@ -96,6 +103,12 @@ class SeleniumScraper:
                 print('Cant find some Elements')
                 continue
 
+        return items
+
+    def write_to_file(self):
+        """ Записываем в файл полученные данные по товарам """
+
+        items = self.get_items_data()
         with open(file_import, "w") as file:
             for item in items:
                 file.write(item)
@@ -105,4 +118,4 @@ class SeleniumScraper:
 
 if __name__ == '__main__':
     data_scrapping = SeleniumScraper()
-    data_scrapping.initialize_browser()
+    data_scrapping.start_scraping()

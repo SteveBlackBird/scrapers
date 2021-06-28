@@ -4,7 +4,8 @@ from selenium.common.exceptions import ElementNotInteractableException, NoSuchEl
 from time import sleep
 
 url = 'https://xxx.com/category/80/svet/'
-file_import = 'svet.txt'
+chromedriver = '/Users/xxx/Desktop/Work/scraper/xxx/chromedriver'
+
 profile_refs = {'profile.default_content_setting_values': {'cookies': 2,
                                                            'images': 2,
                                                            'plugins': 2,
@@ -30,21 +31,29 @@ profile_refs = {'profile.default_content_setting_values': {'cookies': 2,
                                                            'site_engagement': 2,
                                                            'durable_storage': 2}}
 
+XPATH_LOAD_MORE_ITEMS = "//div[@class='more-items-wrapper']/a"
+XPATH_GET_LINKS_DICT = "//div[@class='products-list-item-image']/a"
+XPATH_GET_PRODUCT_INFO = "//div[@class='product-info']/h1"
+XPATH_GET_PRODUCT_PRICE = "//div[@class='product-price']"
+XPATH_GET_PRODUCT_TYPICAL = "//div[@class='typical']"
+XPATH_GET_PRODUCT_IMG_SRC = "//li[@class='product-page-gallery-item']/img"
+
+file_import = 'svet.txt'
+
 
 class SeleniumScraper:
     """ Скрапер динамически подгружаемого контента """
 
     def __init__(self):
-        """ Инициализируем браузер """
+        """ Инициализируем браузер, устанавливаем настройки """
 
-        opts = Options()
-        opts.headless = False
-        opts.add_experimental_option('profile_refs', profile_refs)
-        opts.add_argument("start-maximized")
-        opts.add_argument("disable-infobars")
-        opts.add_argument("--disable-extensions")
+        self.browser = Chrome(chromedriver, options=self.opts)
+        self.opts = Options()
+        self.opts.headless = False
+        self.opts.add_experimental_option('profile_refs', profile_refs)
+        self.opts.add_argument(["start-maximized", "disable-infobars", "--disable-extensions"])
 
-        self.browser = Chrome('/Users/xxx/Desktop/Work/scraper/xxx/chromedriver', options=opts)
+    def initialize_browser(self):
 
         self.browser.get(url)
         sleep(4)
@@ -53,35 +62,33 @@ class SeleniumScraper:
 
     def load_more(self):
         print('Load items on page...')
-        enabled = self.browser.find_element_by_xpath("//div[@class='more-items-wrapper']/a").is_displayed()
+        enabled = self.browser.find_element_by_xpath(XPATH_LOAD_MORE_ITEMS).is_displayed()
         while enabled:
             try:
-                self.browser.find_element_by_xpath("//div[@class='more-items-wrapper']/a").click()
+                self.browser.find_element_by_xpath(XPATH_LOAD_MORE_ITEMS).click()
                 sleep(2)
-            except NoSuchElementException:
+            except NoSuchElementException as error:
                 print('NSEE')
-                break
-            except ElementNotInteractableException:
+                raise error
+            except ElementNotInteractableException as error:
                 print('ENIE')
-                break
+                raise error
 
     def get_items(self):
-        # Get hrefs from main(!loaded) items page.
-        hrefs = [e.get_attribute('href') for e in self.browser.find_elements_by_xpath("//div[@class='products-list"
-                                                                                      "-item-image']/a")]
+        # Get links_dict from main(!loaded) items page.
+        links_dict = [e.get_attribute('href') for e in self.browser.find_elements_by_xpath(XPATH_GET_LINKS_DICT)]
         print('Get items')
-        print(len(hrefs))
+        print(len(links_dict))
         # Go to item and take an info.
         items = []
-        for href in hrefs:
+        for href in links_dict:
             try:
                 self.browser.get(href)
                 sleep(1)
-                item_name = self.browser.find_element_by_xpath("//div[@class='product-info']/h1").text
-                item_cost = self.browser.find_element_by_xpath("//div[@class='product-price']").text
-                item_desc = self.browser.find_element_by_xpath("//div[@class='typical']").text
-                item_img = self.browser.find_element_by_xpath("//li[@class='product-page"
-                                                              "-gallery-item']/img").get_attribute('src')
+                item_name = self.browser.find_element_by_xpath(XPATH_GET_PRODUCT_INFO).text
+                item_cost = self.browser.find_element_by_xpath(XPATH_GET_PRODUCT_PRICE).text
+                item_desc = self.browser.find_element_by_xpath(XPATH_GET_PRODUCT_TYPICAL).text
+                item_img = self.browser.find_element_by_xpath(XPATH_GET_PRODUCT_IMG_SRC).get_attribute('src')
 
                 item_info = f"{item_name}\t{item_cost}\t{item_desc}\t{item_img}\n"
                 items.append(item_info)
@@ -98,3 +105,4 @@ class SeleniumScraper:
 
 if __name__ == '__main__':
     data_scrapping = SeleniumScraper()
+    data_scrapping.initialize_browser()

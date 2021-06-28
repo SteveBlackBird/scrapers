@@ -115,6 +115,10 @@ class SeleniumScraper:
             for item in items:
                 file.write(item)
         file.close()
+
+    def close_browser(self):
+        """ Прекращаем работу браузера """
+
         self.browser.quit()
 
 

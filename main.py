@@ -59,7 +59,6 @@ class SeleniumScraper:
         self.browser.get(url)
         sleep(4)
         self.load_more()
-        self.get_links_dict()
         self.get_items_data()
         self.write_to_file()
 

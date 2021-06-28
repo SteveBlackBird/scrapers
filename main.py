@@ -54,6 +54,7 @@ class SeleniumScraper:
         self.opts.add_argument(["start-maximized", "disable-infobars", "--disable-extensions"])
 
     def start_scraping(self):
+        """ Подключаемся к url, запускаем скрапер """
 
         self.browser.get(url)
         sleep(4)
@@ -63,6 +64,8 @@ class SeleniumScraper:
         self.write_to_file()
 
     def load_more(self):
+        """ Прогружаем все товарные позиции на страницу """
+
         print('Load items on page...')
         enabled = self.browser.find_element_by_xpath(XPATH_LOAD_MORE_ITEMS).is_displayed()
         while enabled:
